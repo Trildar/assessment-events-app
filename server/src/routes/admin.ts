@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import { Buffer } from "node:buffer";
 import { User } from "../db/schemas.js";
 import { MongoServerError } from "mongodb";
+import { SignJWT } from "jose";
 
 const router = express.Router();
 const SALT_LENGTH = 16;
@@ -12,6 +13,12 @@ const SCRYPT_OPTIONS: ScryptOptions = {
   cost: 1 << 17,
   maxmem: 128 * (2 + 1 << 17) * 8 // 128 * (2 + cost) * blockSize
 };
+const jwt_sign_key_hex = process.env.JWT_KEY;
+if (!jwt_sign_key_hex) {
+  console.log("[server]: JWT_KEY missing");
+  process.exit(1);
+}
+const jwt_sign_key = Buffer.from(jwt_sign_key_hex, "hex");
 
 router.post("/register", async (req, res) => {
   const email_pattern = /^[^@]+@[a-zA-Z0-9\-\.]+$/;
@@ -59,7 +66,7 @@ router.post("/register", async (req, res) => {
     }
     throw err;
   }
-  res.status(204).send();
+  res.sendStatus(204);
 });
 
 router.post("/login", async (req, res) => {
@@ -97,7 +104,14 @@ router.post("/login", async (req, res) => {
     return;
   }
 
-  res.json({ token: "TODO" });
+  // 24 hours from now
+  const token_expiry = Date.now() + 24 * 3600000;
+  const token = await new SignJWT({ roles: ["admin"] })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(token_expiry)
+    .sign(jwt_sign_key);
+  res.cookie("auth-token", token, { expires: new Date(token_expiry), sameSite: "strict", httpOnly: true }).send();
 });
 
 export default router;
