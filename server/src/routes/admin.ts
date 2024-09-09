@@ -21,9 +21,18 @@ if (!jwt_sign_key_hex) {
 const jwt_sign_key = Buffer.from(jwt_sign_key_hex, "hex");
 
 router.post("/register", async (req, res) => {
+  const email_raw = req.body.email;
+  if (email_raw == null) {
+    res.status(400).json({ error: "Required field, email, is missing." });
+    return;
+  }
+  if (typeof email_raw !== "string") {
+    res.status(400).json({ error: "Invalid type for email. Email must be a string." });
+    return;
+  }
+  const email = email_raw.normalize();
   const email_pattern = /^[^@]+@[a-zA-Z0-9\-\.]+$/;
-  const email = req.body.email?.normalize();
-  if (email == null || email.length === 0 || !email_pattern.test(email)) {
+  if (email.length === 0 || !email_pattern.test(email)) {
     res.status(400).json({ error: "Invalid email. Please check that you have entered your email correctly." });
     return;
   }
@@ -31,9 +40,18 @@ router.post("/register", async (req, res) => {
     res.status(400).json({ error: "Email too long. Maximum length is 255 characters." });
     return;
   }
-  const password = req.body.password?.normalize();
-  if (password == null || password.length < 8) {
-    res.status(400).json({ error: "Password missing or too short. Password must be at least 8 characters." });
+  const password_raw = req.body.password;
+  if (password_raw == null) {
+    res.status(400).json({ error: "Required field, password, is missing." });
+    return;
+  }
+  if (typeof password_raw !== "string") {
+    res.status(400).json({ error: "Invalid type for password. Password must be a string." });
+    return;
+  }
+  const password = password_raw.normalize();
+  if (password.length < 8) {
+    res.status(400).json({ error: "Password too short. Password must be at least 8 characters." });
     return;
   }
   if (password.length > 255) {
@@ -70,15 +88,37 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  const email_raw = req.body.email;
+  if (email_raw == null) {
+    res.status(400).json({ error: "Required field, email, is missing." });
+    return;
+  }
+  if (typeof email_raw !== "string") {
+    res.status(400).json({ error: "Invalid type for email. Email must be a string." });
+    return;
+  }
+  const email = email_raw.normalize();
   const email_pattern = /^[^@]+@[a-zA-Z0-9\-\.]+$/;
-  const email = req.body.email?.normalize();
-  if (email == null || email.length === 0 || email.length > 255 || !email_pattern.test(email)) {
+  if (email.length === 0 || email.length > 255 || !email_pattern.test(email)) {
     res.status(400).json({ error: "Invalid email. Please check that you have entered your email correctly." });
     return;
   }
-  const password = req.body.password?.normalize();
-  if (password == null || password.length === 0) {
+  const password_raw = req.body.password;
+  if (password_raw == null) {
+    res.status(400).json({ error: "Required field, password, is missing." });
+    return;
+  }
+  if (typeof password_raw !== "string") {
+    res.status(400).json({ error: "Invalid type for password. Password must be a string." });
+    return;
+  }
+  const password = password_raw.normalize();
+  if (password.length === 0) {
     res.status(400).json({ error: "No password provided. Please enter a password." });
+    return;
+  }
+  if (password.length > 255) {
+    res.status(400).json({ error: "Password too long. Maximum length is 255 characters." });
     return;
   }
 
