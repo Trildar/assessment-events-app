@@ -5,7 +5,7 @@ interface IUser {
   password: Types.Buffer,
 }
 
-interface IEvent {
+export interface IEvent {
   name: string,
   start_date: Date,
   end_date: Date,
@@ -23,7 +23,7 @@ const event_schema = new Schema<IEvent>({
   end_date: { type: Date, required: true },
   location: String,
   thumbnail_path: { type: String, required: true },
-});
+}, { timestamps: true });
 
 export const User = mongoose.model<IUser>("User", user_schema);
 export const Event = mongoose.model<IEvent>("Event", event_schema);
