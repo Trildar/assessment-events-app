@@ -27,7 +27,7 @@ router.post("/register", async (req, res) => {
     return;
   }
   if (typeof email_raw !== "string") {
-    res.status(400).json({ error: "Invalid type for email. Email must be a string." });
+    res.status(400).json({ error: "Invalid type for email. Must be a string." });
     return;
   }
   const email = email_raw.normalize();
@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
     return;
   }
   if (typeof password_raw !== "string") {
-    res.status(400).json({ error: "Invalid type for password. Password must be a string." });
+    res.status(400).json({ error: "Invalid type for password. Must be a string." });
     return;
   }
   const password = password_raw.normalize();
@@ -94,7 +94,7 @@ router.post("/login", async (req, res) => {
     return;
   }
   if (typeof email_raw !== "string") {
-    res.status(400).json({ error: "Invalid type for email. Email must be a string." });
+    res.status(400).json({ error: "Invalid type for email. Must be a string." });
     return;
   }
   const email = email_raw.normalize();
@@ -109,7 +109,7 @@ router.post("/login", async (req, res) => {
     return;
   }
   if (typeof password_raw !== "string") {
-    res.status(400).json({ error: "Invalid type for password. Password must be a string." });
+    res.status(400).json({ error: "Invalid type for password. Must be a string." });
     return;
   }
   const password = password_raw.normalize();
