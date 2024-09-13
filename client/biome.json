@@ -1,0 +1,11 @@
+{
+    "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+    "formatter": {
+        "useEditorconfig": true
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single"
+        }
+    }
+}
