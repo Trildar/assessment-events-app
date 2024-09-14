@@ -16,7 +16,17 @@ function AdminLogin() {
     const { control, handleSubmit } = useForm<LoginForm>();
     const theme = useTheme();
     const router = useRouter();
-    const loginMutation = useMutation({ mutationFn: login });
+    const searchParams = Route.useSearch();
+    const loginMutation = useMutation({
+        mutationFn: login,
+        onSuccess: () => {
+            if (searchParams.redirect) {
+                router.history.replace(searchParams.redirect);
+            } else {
+                router.navigate({ to: '/admin/events', replace: true });
+            }
+        },
+    });
 
     return (
         <>
@@ -62,6 +72,9 @@ function AdminLogin() {
                             <div css={{ color: theme.palette.error.main }}>
                                 Login error: {loginMutation.error.message}
                             </div>
+                        ) : null}
+                        {searchParams.bounced ? (
+                            <div css={{ color: theme.palette.error.main }}>Login required to access page</div>
                         ) : null}
                         <Stack direction="row" spacing={2}>
                             <Button variant="contained" type="submit" disabled={loginMutation.isPending}>

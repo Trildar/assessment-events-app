@@ -20,3 +20,7 @@ export async function register(data: IAdminRegister) {
 export async function login(data: IAdminLogin) {
     await adminKy.post('login', { json: data, credentials: 'include' });
 }
+
+export async function isAuth() {
+    return await adminKy.get('is-auth', { credentials: 'include' }).json<boolean>();
+}

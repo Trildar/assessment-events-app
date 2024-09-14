@@ -13,30 +13,60 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AdminIndexImport } from './routes/admin/index'
+import { Route as AdminAuthImport } from './routes/admin/_auth'
 
 // Create Virtual Routes
 
+const AdminImport = createFileRoute('/admin')()
 const IndexLazyImport = createFileRoute('/')()
-const AdminIndexLazyImport = createFileRoute('/admin/')()
 const AdminRegisterLazyImport = createFileRoute('/admin/register')()
+const AdminAuthEventsIndexLazyImport = createFileRoute('/admin/_auth/events/')()
+const AdminAuthEventsCreateLazyImport = createFileRoute(
+  '/admin/_auth/events/create',
+)()
 
 // Create/Update Routes
+
+const AdminRoute = AdminImport.update({
+  path: '/admin',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const AdminIndexLazyRoute = AdminIndexLazyImport.update({
-  path: '/admin/',
-  getParentRoute: () => rootRoute,
+const AdminIndexRoute = AdminIndexImport.update({
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
 
 const AdminRegisterLazyRoute = AdminRegisterLazyImport.update({
-  path: '/admin/register',
-  getParentRoute: () => rootRoute,
+  path: '/register',
+  getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin/register.lazy').then((d) => d.Route),
+)
+
+const AdminAuthRoute = AdminAuthImport.update({
+  id: '/_auth',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminAuthEventsIndexLazyRoute = AdminAuthEventsIndexLazyImport.update({
+  path: '/events/',
+  getParentRoute: () => AdminAuthRoute,
+} as any).lazy(() =>
+  import('./routes/admin/_auth/events/index.lazy').then((d) => d.Route),
+)
+
+const AdminAuthEventsCreateLazyRoute = AdminAuthEventsCreateLazyImport.update({
+  path: '/events/create',
+  getParentRoute: () => AdminAuthRoute,
+} as any).lazy(() =>
+  import('./routes/admin/_auth/events/create.lazy').then((d) => d.Route),
 )
 
 // Populate the FileRoutesByPath interface
@@ -50,63 +80,145 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/_auth': {
+      id: '/admin/_auth'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAuthImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/register': {
       id: '/admin/register'
-      path: '/admin/register'
+      path: '/register'
       fullPath: '/admin/register'
       preLoaderRoute: typeof AdminRegisterLazyImport
-      parentRoute: typeof rootRoute
+      parentRoute: typeof AdminImport
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminIndexLazyImport
-      parentRoute: typeof rootRoute
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/_auth/events/create': {
+      id: '/admin/_auth/events/create'
+      path: '/events/create'
+      fullPath: '/admin/events/create'
+      preLoaderRoute: typeof AdminAuthEventsCreateLazyImport
+      parentRoute: typeof AdminAuthImport
+    }
+    '/admin/_auth/events/': {
+      id: '/admin/_auth/events/'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminAuthEventsIndexLazyImport
+      parentRoute: typeof AdminAuthImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AdminAuthRouteChildren {
+  AdminAuthEventsCreateLazyRoute: typeof AdminAuthEventsCreateLazyRoute
+  AdminAuthEventsIndexLazyRoute: typeof AdminAuthEventsIndexLazyRoute
+}
+
+const AdminAuthRouteChildren: AdminAuthRouteChildren = {
+  AdminAuthEventsCreateLazyRoute: AdminAuthEventsCreateLazyRoute,
+  AdminAuthEventsIndexLazyRoute: AdminAuthEventsIndexLazyRoute,
+}
+
+const AdminAuthRouteWithChildren = AdminAuthRoute._addFileChildren(
+  AdminAuthRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminAuthRoute: typeof AdminAuthRouteWithChildren
+  AdminRegisterLazyRoute: typeof AdminRegisterLazyRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuthRoute: AdminAuthRouteWithChildren,
+  AdminRegisterLazyRoute: AdminRegisterLazyRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/admin': typeof AdminAuthRouteWithChildren
   '/admin/register': typeof AdminRegisterLazyRoute
-  '/admin': typeof AdminIndexLazyRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/events/create': typeof AdminAuthEventsCreateLazyRoute
+  '/admin/events': typeof AdminAuthEventsIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/admin': typeof AdminIndexRoute
   '/admin/register': typeof AdminRegisterLazyRoute
-  '/admin': typeof AdminIndexLazyRoute
+  '/admin/events/create': typeof AdminAuthEventsCreateLazyRoute
+  '/admin/events': typeof AdminAuthEventsIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/admin/_auth': typeof AdminAuthRouteWithChildren
   '/admin/register': typeof AdminRegisterLazyRoute
-  '/admin/': typeof AdminIndexLazyRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/_auth/events/create': typeof AdminAuthEventsCreateLazyRoute
+  '/admin/_auth/events/': typeof AdminAuthEventsIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/register' | '/admin'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/register'
+    | '/admin/'
+    | '/admin/events/create'
+    | '/admin/events'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/register' | '/admin'
-  id: '__root__' | '/' | '/admin/register' | '/admin/'
+  to:
+    | '/'
+    | '/admin'
+    | '/admin/register'
+    | '/admin/events/create'
+    | '/admin/events'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/admin/_auth'
+    | '/admin/register'
+    | '/admin/'
+    | '/admin/_auth/events/create'
+    | '/admin/_auth/events/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
-  AdminRegisterLazyRoute: typeof AdminRegisterLazyRoute
-  AdminIndexLazyRoute: typeof AdminIndexLazyRoute
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
-  AdminRegisterLazyRoute: AdminRegisterLazyRoute,
-  AdminIndexLazyRoute: AdminIndexLazyRoute,
+  AdminRoute: AdminRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -122,18 +234,43 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/admin/register",
-        "/admin/"
+        "/admin"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
+    "/admin": {
+      "filePath": "admin",
+      "children": [
+        "/admin/_auth",
+        "/admin/register",
+        "/admin/"
+      ]
+    },
+    "/admin/_auth": {
+      "filePath": "admin/_auth.tsx",
+      "parent": "/admin",
+      "children": [
+        "/admin/_auth/events/create",
+        "/admin/_auth/events/"
+      ]
+    },
     "/admin/register": {
-      "filePath": "admin/register.lazy.tsx"
+      "filePath": "admin/register.lazy.tsx",
+      "parent": "/admin"
     },
     "/admin/": {
-      "filePath": "admin/index.lazy.tsx"
+      "filePath": "admin/index.tsx",
+      "parent": "/admin"
+    },
+    "/admin/_auth/events/create": {
+      "filePath": "admin/_auth/events/create.lazy.tsx",
+      "parent": "/admin/_auth"
+    },
+    "/admin/_auth/events/": {
+      "filePath": "admin/_auth/events/index.lazy.tsx",
+      "parent": "/admin/_auth"
     }
   }
 }
