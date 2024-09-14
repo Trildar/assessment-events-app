@@ -4,7 +4,7 @@ import { promisify } from "node:util";
 import { Buffer } from "node:buffer";
 import { User } from "../db/schemas.js";
 import { MongoServerError } from "mongodb";
-import { SignJWT } from "jose";
+import { JWTPayload, jwtVerify, SignJWT } from "jose";
 
 const router = express.Router();
 const SALT_LENGTH = 16;
@@ -153,5 +153,20 @@ router.post("/login", async (req, res) => {
         .sign(jwt_sign_key);
     res.cookie("auth-token", token, { expires: new Date(token_expiry), sameSite: "strict", httpOnly: true }).sendStatus(204);
 });
+
+router.get("/is-auth", async (req, res) => {
+    const auth_token = req.cookies["auth-token"];
+    res.setHeader("Cache-Control", "private, max-age=10, must-revalidate");
+    if (!auth_token) {
+        res.json(false);
+        return;
+    }
+    const jwt = await jwtVerify<JWTPayload & { roles?: string[] }>(auth_token, jwt_sign_key);
+    if (!jwt.payload.roles?.includes("admin")) {
+        res.json(false);
+        return;
+    }
+    res.json(true);
+})
 
 export default router;
