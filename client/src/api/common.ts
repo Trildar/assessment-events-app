@@ -1,5 +1,10 @@
 import ky from 'ky';
 
+export interface PaginatedData<T> {
+    total_estimate: number;
+    data: T;
+}
+
 export const eventsAppKy = ky.create({
     prefixUrl: import.meta.env.VITE_API_BASE_URL,
     hooks: {

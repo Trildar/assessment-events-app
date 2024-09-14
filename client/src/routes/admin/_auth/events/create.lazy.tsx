@@ -38,8 +38,8 @@ function CreateEvent() {
     );
     const thumbnailFile = useWatch({ name: 'thumbnail', control, defaultValue: undefined })?.item(0);
     useMemo(() => updateThumbnailUrlObject(thumbnailFile), [thumbnailFile]);
-    const router = useRouter();
-    const eventMutation = useMutation({ mutationFn: create, onSuccess: () => router.navigate({ to: '..' }) });
+    const navigate = Route.useNavigate();
+    const eventMutation = useMutation({ mutationFn: create, onSuccess: () => navigate({ to: '..' }) });
     return (
         <>
             <Container
@@ -103,4 +103,3 @@ function CreateEvent() {
         </>
     );
 }
-

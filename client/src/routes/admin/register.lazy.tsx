@@ -1,6 +1,6 @@
 import { Button, Container, css, Stack, useTheme } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
-import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
+import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { PasswordElement, PasswordRepeatElement, TextFieldElement } from 'react-hook-form-mui';
 import { register } from '../../api/admin';
@@ -19,10 +19,10 @@ const inputMaxWidth = css({ maxWidth: '500px' });
 function AdminLogin() {
     const { control, handleSubmit } = useForm<RegisterForm>();
     const theme = useTheme();
-    const router = useRouter();
+    const navigate = Route.useNavigate();
     const registerMutation = useMutation({
         mutationFn: register,
-        onSuccess: () => router.navigate({ to: '/admin' }),
+        onSuccess: () => navigate({ to: '..' }),
     });
     return (
         <>

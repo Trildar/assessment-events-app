@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, type SearchSchemaInput } from '@tanstack/react-router';
 import { isAuth } from '../../api/admin';
 
 interface LoginSearch {
@@ -13,11 +13,10 @@ export const Route = createFileRoute('/admin/')({
             throw redirect({ to: '/admin/events' });
         }
     },
-    validateSearch: (search: Record<string, unknown>): LoginSearch => {
+    validateSearch: (search: Record<string, unknown> & SearchSchemaInput): LoginSearch => {
         return {
             redirect: search.redirect as string,
-            bounced: (search.bounced as boolean) ?? false,
+            bounced: search.bounced as boolean,
         };
     },
 });
-

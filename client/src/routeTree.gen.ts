@@ -15,13 +15,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as AdminAuthImport } from './routes/admin/_auth'
+import { Route as AdminAuthEventsIndexImport } from './routes/admin/_auth/events/index'
 
 // Create Virtual Routes
 
 const AdminImport = createFileRoute('/admin')()
 const IndexLazyImport = createFileRoute('/')()
 const AdminRegisterLazyImport = createFileRoute('/admin/register')()
-const AdminAuthEventsIndexLazyImport = createFileRoute('/admin/_auth/events/')()
 const AdminAuthEventsCreateLazyImport = createFileRoute(
   '/admin/_auth/events/create',
 )()
@@ -55,7 +55,7 @@ const AdminAuthRoute = AdminAuthImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
-const AdminAuthEventsIndexLazyRoute = AdminAuthEventsIndexLazyImport.update({
+const AdminAuthEventsIndexRoute = AdminAuthEventsIndexImport.update({
   path: '/events/',
   getParentRoute: () => AdminAuthRoute,
 } as any).lazy(() =>
@@ -119,7 +119,7 @@ declare module '@tanstack/react-router' {
       id: '/admin/_auth/events/'
       path: '/events'
       fullPath: '/admin/events'
-      preLoaderRoute: typeof AdminAuthEventsIndexLazyImport
+      preLoaderRoute: typeof AdminAuthEventsIndexImport
       parentRoute: typeof AdminAuthImport
     }
   }
@@ -129,12 +129,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminAuthRouteChildren {
   AdminAuthEventsCreateLazyRoute: typeof AdminAuthEventsCreateLazyRoute
-  AdminAuthEventsIndexLazyRoute: typeof AdminAuthEventsIndexLazyRoute
+  AdminAuthEventsIndexRoute: typeof AdminAuthEventsIndexRoute
 }
 
 const AdminAuthRouteChildren: AdminAuthRouteChildren = {
   AdminAuthEventsCreateLazyRoute: AdminAuthEventsCreateLazyRoute,
-  AdminAuthEventsIndexLazyRoute: AdminAuthEventsIndexLazyRoute,
+  AdminAuthEventsIndexRoute: AdminAuthEventsIndexRoute,
 }
 
 const AdminAuthRouteWithChildren = AdminAuthRoute._addFileChildren(
@@ -161,7 +161,7 @@ export interface FileRoutesByFullPath {
   '/admin/register': typeof AdminRegisterLazyRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/events/create': typeof AdminAuthEventsCreateLazyRoute
-  '/admin/events': typeof AdminAuthEventsIndexLazyRoute
+  '/admin/events': typeof AdminAuthEventsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -169,7 +169,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/admin/register': typeof AdminRegisterLazyRoute
   '/admin/events/create': typeof AdminAuthEventsCreateLazyRoute
-  '/admin/events': typeof AdminAuthEventsIndexLazyRoute
+  '/admin/events': typeof AdminAuthEventsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -180,7 +180,7 @@ export interface FileRoutesById {
   '/admin/register': typeof AdminRegisterLazyRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/_auth/events/create': typeof AdminAuthEventsCreateLazyRoute
-  '/admin/_auth/events/': typeof AdminAuthEventsIndexLazyRoute
+  '/admin/_auth/events/': typeof AdminAuthEventsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -269,7 +269,7 @@ export const routeTree = rootRoute
       "parent": "/admin/_auth"
     },
     "/admin/_auth/events/": {
-      "filePath": "admin/_auth/events/index.lazy.tsx",
+      "filePath": "admin/_auth/events/index.tsx",
       "parent": "/admin/_auth"
     }
   }
