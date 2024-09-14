@@ -12,6 +12,7 @@ dist
 dist-ssr
 mongodb
 *.local
+store/*
 
 # Editor directories and files
 .vscode/*
