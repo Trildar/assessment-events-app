@@ -111,6 +111,30 @@ router.put("/", upload_handler.single("thumbnail"), async (req, res) => {
     res.sendStatus(204);
 });
 
+router.get("/list", async (req, res) => {
+    const page_raw = req.query["page"];
+    let page = 0;
+    if (page_raw != null && typeof page_raw === "string") {
+        page = parseInt(page_raw) - 1;
+        if (isNaN(page) || page < 0) {
+            page = 0;
+        }
+    }
+    const limit_raw = req.query["limit"];
+    let limit = 10;
+    if (limit_raw != null && typeof limit_raw === "string") {
+        limit = parseInt(limit_raw);
+        if (isNaN(limit) || limit < 0) {
+            limit = 10;
+        }
+    }
+
+    const events = await Event.find().sort("createdAt").skip(page * limit).limit(limit).exec();
+    const event_count_estimate = await Event.estimatedDocumentCount().exec();
+
+    res.json({ total_estimate: event_count_estimate, data: events });
+});
+
 router.route("/:id")
     .get(async (req, res) => {
         const event = await Event.findById(req.params.id).exec();
@@ -219,29 +243,5 @@ router.route("/:id")
         }
         res.sendStatus(204);
     });
-
-router.get("/list", async (req, res) => {
-    const page_raw = req.query["page"];
-    let page = 0;
-    if (page_raw != null && typeof page_raw === "string") {
-        page = parseInt(page_raw) - 1;
-        if (isNaN(page) || page < 0) {
-            page = 0;
-        }
-    }
-    const limit_raw = req.query["limit"];
-    let limit = 10;
-    if (limit_raw != null && typeof limit_raw === "string") {
-        limit = parseInt(limit_raw);
-        if (isNaN(limit) || limit < 0) {
-            limit = 10;
-        }
-    }
-
-    const events = await Event.find().sort("createdAt").skip(page * limit).limit(limit).exec();
-    const event_count_estimate = await Event.estimatedDocumentCount().exec();
-
-    res.json({ total_estimate: event_count_estimate, data: events });
-});
 
 export default router;
