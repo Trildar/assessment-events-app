@@ -1,5 +1,5 @@
-import { Button, Container, Stack, styled, useTheme } from '@mui/material';
-import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
+import { Button, Container, Stack, styled } from '@mui/material';
+import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { create, type EventForm } from '../../../../api/event';
 import { TextFieldElement } from 'react-hook-form-mui';
@@ -27,6 +27,7 @@ const VisuallyHiddenInput = styled('input')({
 
 function CreateEvent() {
     const { control, handleSubmit, register } = useForm<EventForm>();
+    const { queryClient } = Route.useRouteContext();
     const [thumbnailUrlObject, updateThumbnailUrlObject] = useReducer<Reducer<string | null, File | null>>(
         (state, newThumbnail) => {
             if (state) {
@@ -39,7 +40,13 @@ function CreateEvent() {
     const thumbnailFile = useWatch({ name: 'thumbnail', control, defaultValue: undefined })?.item(0);
     useMemo(() => updateThumbnailUrlObject(thumbnailFile), [thumbnailFile]);
     const navigate = Route.useNavigate();
-    const eventMutation = useMutation({ mutationFn: create, onSuccess: () => navigate({ to: '..' }) });
+    const eventMutation = useMutation({
+        mutationFn: create,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['events'] });
+            navigate({ to: '..' });
+        },
+    });
     return (
         <>
             <Container
@@ -92,7 +99,12 @@ function CreateEvent() {
                                 </Button>
                             </div>
                             <div>
-                                <Button variant="contained" type="submit" startIcon={<Add />}>
+                                <Button
+                                    variant="contained"
+                                    type="submit"
+                                    disabled={eventMutation.isPending}
+                                    startIcon={<Add />}
+                                >
                                     Create event
                                 </Button>
                             </div>
