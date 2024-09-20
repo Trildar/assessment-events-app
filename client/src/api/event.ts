@@ -52,3 +52,19 @@ export async function create(data: EventForm) {
     multipartData.append('thumbnail', data.thumbnail[0]);
     return await eventKy.put('', { body: multipartData, credentials: 'include' });
 }
+
+export async function get(id: string): Promise<IEvent> {
+    const data = await eventKy.get(id).json<EventViewModel>();
+    return {
+        _id: data._id,
+        name: data.name,
+        start_date: dayjs(data.start_date),
+        end_date: dayjs(data.end_date),
+        location: data.location,
+        thumbnail_path: data.thumbnail_path,
+    };
+}
+
+export async function deleteEvent(id: string) {
+    return await eventKy.delete(id, { credentials: 'include' });
+}

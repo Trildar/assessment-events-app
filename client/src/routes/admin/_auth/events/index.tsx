@@ -1,9 +1,26 @@
+import { queryOptions } from '@tanstack/react-query';
 import type { SearchSchemaInput } from '@tanstack/react-router';
 import { createFileRoute } from '@tanstack/react-router';
+import { get, getList } from '../../../../api/event';
 
 interface EventListSearch {
     page: number;
     limit: number;
+}
+
+function eventListQueryOptions(page: number, limit: number) {
+    return queryOptions({
+        queryKey: ['events', { page, limit }],
+        queryFn: () => getList(page, limit),
+        staleTime: 500,
+    });
+}
+
+function eventQueryOptions(id: string) {
+    return queryOptions({
+        queryKey: ['events', id],
+        queryFn: () => get(id),
+    });
 }
 
 export const Route = createFileRoute('/admin/_auth/events/')({
@@ -20,5 +37,15 @@ export const Route = createFileRoute('/admin/_auth/events/')({
             page,
             limit,
         };
+    },
+    beforeLoad: () => {
+        return {
+            eventListQueryOptions,
+            eventQueryOptions,
+        };
+    },
+    loaderDeps: ({ search: { page, limit } }) => ({ page, limit }),
+    loader: async ({ context: { queryClient }, deps: { page, limit } }) => {
+        await queryClient.prefetchQuery(eventListQueryOptions(page, limit));
     },
 });

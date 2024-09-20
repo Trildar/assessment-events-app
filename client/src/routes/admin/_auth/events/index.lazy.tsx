@@ -1,7 +1,12 @@
-import { Add } from '@mui/icons-material';
+import { Add, Delete, Edit } from '@mui/icons-material';
 import {
+    Button,
     Container,
+    Dialog,
+    DialogActions,
+    DialogTitle,
     Fab,
+    IconButton,
     Paper,
     Table,
     TableBody,
@@ -11,9 +16,10 @@ import {
     TablePagination,
     TableRow,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { getList } from '../../../../api/event';
+import { useState } from 'react';
+import { deleteEvent } from '../../../../api/event';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/')({
     component: EventTable,
@@ -21,13 +27,20 @@ export const Route = createLazyFileRoute('/admin/_auth/events/')({
 
 function EventTable() {
     const { page, limit } = Route.useSearch();
-    const eventsData = useQuery({
-        queryKey: ['eventList', page, limit],
-        queryFn: () => getList(page, limit),
-        initialData: { total_estimate: 0, data: [] },
-    });
-    const { total_estimate, data: events } = eventsData.data;
+    const { eventListQueryOptions } = Route.useRouteContext();
+    const eventsData = useQuery(eventListQueryOptions(page, limit));
     const navigate = Route.useNavigate();
+
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const deleteHandleClose = () => {
+        setDeleteOpen(false);
+    };
+    const [{ deleteEventId, deleteEventName }, setDeleteEvent] = useState({ deleteEventId: '', deleteEventName: '' });
+    const handleDeleteEvent = (deleteEventId: string, deleteEventName: string) => {
+        setDeleteEvent({ deleteEventId, deleteEventName });
+        setDeleteOpen(true);
+    };
+
     return (
         <>
             <Container>
@@ -41,24 +54,39 @@ function EventTable() {
                                     <TableCell>Start Date</TableCell>
                                     <TableCell>End Date</TableCell>
                                     <TableCell>Location</TableCell>
+                                    <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {events.map((ev) => (
-                                    <TableRow key={ev._id}>
-                                        <TableCell>{ev.name}</TableCell>
-                                        <TableCell>{ev.start_date.format('DD/MM/YYYY')}</TableCell>
-                                        <TableCell>{ev.end_date.format('DD/MM/YYYY')}</TableCell>
-                                        <TableCell>{ev.location}</TableCell>
-                                    </TableRow>
-                                ))}
+                                {!eventsData.isPending
+                                    ? eventsData.data?.data.map((ev) => (
+                                          <TableRow key={ev._id}>
+                                              <TableCell>{ev.name}</TableCell>
+                                              <TableCell>{ev.start_date.format('DD/MM/YYYY')}</TableCell>
+                                              <TableCell>{ev.end_date.format('DD/MM/YYYY')}</TableCell>
+                                              <TableCell>{ev.location}</TableCell>
+                                              <TableCell>
+                                                  <IconButton color="primary" aria-label="edit">
+                                                      <Edit />
+                                                  </IconButton>
+                                                  <IconButton
+                                                      color="error"
+                                                      aria-label="delete"
+                                                      onClick={() => handleDeleteEvent(ev._id, ev.name)}
+                                                  >
+                                                      <Delete />
+                                                  </IconButton>
+                                              </TableCell>
+                                          </TableRow>
+                                      ))
+                                    : null}
                             </TableBody>
                         </Table>
                     </TableContainer>
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25, 50]}
                         component="div"
-                        count={total_estimate}
+                        count={eventsData.data?.total_estimate ?? 0}
                         rowsPerPage={limit}
                         page={page}
                         onPageChange={(_, new_page) =>
@@ -81,6 +109,44 @@ function EventTable() {
             >
                 <Add />
             </Fab>
+            <DeleteEvent
+                open={deleteOpen}
+                handleClose={deleteHandleClose}
+                eventId={deleteEventId}
+                eventName={deleteEventName}
+            />
         </>
+    );
+}
+
+function DeleteEvent({
+    open,
+    handleClose,
+    eventId,
+    eventName,
+}: { open: boolean; handleClose: () => void; eventId: string; eventName: string }) {
+    const { queryClient } = Route.useRouteContext();
+    const deleteMutation = useMutation({
+        mutationFn: deleteEvent,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['events'] });
+        },
+    });
+    const handleDelete = () => {
+        return deleteMutation.mutateAsync(eventId, { onSuccess: () => handleClose() });
+    };
+
+    return (
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Delete event {eventName}?</DialogTitle>
+            <DialogActions>
+                <Button color="error" variant="contained" onClick={handleDelete} disabled={deleteMutation.isPending}>
+                    Delete
+                </Button>
+                <Button color="primary" variant="outlined" onClick={handleClose}>
+                    Cancel
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 }
