@@ -115,7 +115,7 @@ router.get("/list", async (req, res) => {
     const page_raw = req.query["page"];
     let page = 0;
     if (page_raw != null && typeof page_raw === "string") {
-        page = parseInt(page_raw) - 1;
+        page = parseInt(page_raw);
         if (isNaN(page) || page < 0) {
             page = 0;
         }
