@@ -19,7 +19,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { deleteEvent, type IEvent } from '../../../../api/event';
+import { deleteEvent, getStatusName, type IEvent } from '../../../../api/event';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/')({
     component: EventTable,
@@ -61,6 +61,7 @@ function EventTable() {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>
+                                    <TableCell>Status</TableCell>
                                     <TableCell>Start Date</TableCell>
                                     <TableCell>End Date</TableCell>
                                     <TableCell>Location</TableCell>
@@ -72,6 +73,7 @@ function EventTable() {
                                     ? eventsData.data?.data.map((ev) => (
                                           <TableRow key={ev._id}>
                                               <TableCell>{ev.name}</TableCell>
+                                              <TableCell>{getStatusName(ev.status)}</TableCell>
                                               <TableCell>{ev.start_date.format('DD/MM/YYYY')}</TableCell>
                                               <TableCell>{ev.end_date.format('DD/MM/YYYY')}</TableCell>
                                               <TableCell>{ev.location}</TableCell>

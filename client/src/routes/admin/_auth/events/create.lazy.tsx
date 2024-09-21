@@ -1,7 +1,7 @@
 import { Button, Container, Stack, useTheme } from '@mui/material';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
-import { create, type EventForm } from '../../../../api/event';
+import { create, type CreateEventForm } from '../../../../api/event';
 import { TextFieldElement } from 'react-hook-form-mui';
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { Add, CloudUpload, Image } from '@mui/icons-material';
@@ -17,7 +17,7 @@ export const Route = createLazyFileRoute('/admin/_auth/events/create')({
 });
 
 function CreateEvent() {
-    const { control, handleSubmit, register } = useForm<EventForm>();
+    const { control, handleSubmit, register } = useForm<CreateEventForm>();
     const { queryClient } = Route.useRouteContext();
     const [thumbnailUrlObject, updateThumbnailUrlObject] = useReducer<Reducer<string | null, File | null>>(
         (state, newThumbnail) => {

@@ -3,7 +3,7 @@ import multer from "multer";
 import fs from "node:fs/promises";
 import dayjs from "dayjs";
 import { auth_admin } from "../middleware/auth.js";
-import { Event } from "../db/schemas.js";
+import { Event, EventStatus } from "../db/schemas.js";
 import { customAlphabet } from "nanoid";
 import { createHash } from "node:crypto";
 
@@ -110,7 +110,7 @@ router.put("/", upload_handler.single("thumbnail"), async (req, res) => {
         return;
     }
 
-    const event = new Event({ name, start_date: start_date.toDate(), end_date: end_date.toDate(), location, thumbnail_path: thumbnail_file.path });
+    const event = new Event({ name, status: EventStatus.Ongoing, start_date: start_date.toDate(), end_date: end_date.toDate(), location, thumbnail_path: thumbnail_file.path });
     await event.save();
 
     res.sendStatus(204);
@@ -174,6 +174,17 @@ router.route("/:id")
             return;
         }
         const name = name_raw;
+        const status_raw = req.body.status;
+        if (status_raw == null) {
+            res.status(400).json({ error: "Required field, status, is missing." });
+            return;
+        }
+        const status_num = parseInt(status_raw, 10);
+        if (Number.isNaN(status_num) || !(status_num === EventStatus.Ongoing || status_num === EventStatus.Completed)) {
+            res.status(400).json({ error: "Invalid status." })
+            return;
+        }
+        const status = status_num as EventStatus;
         const start_date_raw = req.body.start_date;
         if (start_date_raw == null) {
             res.status(400).json({ error: "Required field, start_date, is missing." });
@@ -226,6 +237,7 @@ router.route("/:id")
         const location = location_raw;
         const thumbnail_file = req.file;
         event.name = name;
+        event.status = status;
         event.start_date = start_date.toDate();
         event.end_date = end_date.toDate();
         event.location = location;

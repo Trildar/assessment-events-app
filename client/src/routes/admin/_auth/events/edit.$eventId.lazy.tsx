@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { edit, type EventForm } from '../../../../api/event';
+import { edit, EventStatus, getStatusName, type EditEventForm } from '../../../../api/event';
 import { useForm, useWatch } from 'react-hook-form';
 import { type Reducer, useMemo, useReducer } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -7,7 +7,7 @@ import { Button, Container, Stack } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/en-sg';
-import { TextFieldElement } from 'react-hook-form-mui';
+import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { CloudUpload, Save } from '@mui/icons-material';
 import { VisuallyHiddenInput } from '../../../../components/VisuallyHiddenInput';
@@ -20,13 +20,14 @@ function EditEvent() {
     const { queryClient, eventQueryOptions } = Route.useRouteContext();
     const { eventId } = Route.useParams();
     const eventData = useQuery(eventQueryOptions(eventId));
-    const initialForm: Partial<EventForm> = {
+    const initialForm: Partial<EditEventForm> = {
         name: eventData.data?.name,
+        status: eventData.data?.status,
         start_date: eventData.data?.start_date,
         end_date: eventData.data?.end_date,
         location: eventData.data?.location,
     };
-    const { control, handleSubmit, register } = useForm<EventForm>({ defaultValues: initialForm });
+    const { control, handleSubmit, register } = useForm<EditEventForm>({ defaultValues: initialForm });
     const [thumbnailUrlObject, updateThumbnailUrlObject] = useReducer<Reducer<string | null, File | null | undefined>>(
         (state, newThumbnail) => {
             if (state) {
@@ -38,14 +39,20 @@ function EditEvent() {
     );
     const thumbnailFile = useWatch({ name: 'thumbnail', control, defaultValue: undefined })?.item(0);
     useMemo(() => updateThumbnailUrlObject(thumbnailFile), [thumbnailFile]);
+    const eventStatusOptions = [EventStatus.Ongoing, EventStatus.Completed].map((v) => ({
+        id: v,
+        label: getStatusName(v),
+    }));
+
     const navigate = Route.useNavigate();
     const eventMutation = useMutation({
-        mutationFn: (data: EventForm) => edit(eventId, data),
+        mutationFn: (data: EditEventForm) => edit(eventId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['events'] });
             navigate({ to: '/admin/events', search: true });
         },
     });
+
     return (
         <>
             <Container
@@ -61,6 +68,13 @@ function EditEvent() {
                     <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
                         <Stack spacing={2}>
                             <TextFieldElement name="name" label="Event name" control={control} required />
+                            <SelectElement
+                                name="status"
+                                label="Status"
+                                options={eventStatusOptions}
+                                control={control}
+                                required
+                            />
                             <DatePickerElement name="start_date" label="Start date" control={control} required />
                             <DatePickerElement
                                 name="end_date"
