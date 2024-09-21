@@ -156,7 +156,6 @@ router.post("/login", async (req, res) => {
 
 router.get("/is-auth", async (req, res) => {
     const auth_token = req.cookies["auth-token"];
-    res.setHeader("Cache-Control", "private, max-age=10, must-revalidate");
     if (!auth_token) {
         res.json(false);
         return;

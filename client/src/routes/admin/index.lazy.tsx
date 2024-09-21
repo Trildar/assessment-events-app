@@ -17,9 +17,11 @@ function AdminLogin() {
     const theme = useTheme();
     const router = useRouter();
     const searchParams = Route.useSearch();
+    const { queryClient } = Route.useRouteContext();
     const loginMutation = useMutation({
         mutationFn: login,
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['isAuth'] });
             if (searchParams.redirect) {
                 router.history.replace(searchParams.redirect);
             } else {
