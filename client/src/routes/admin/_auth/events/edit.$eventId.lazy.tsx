@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Container, Stack } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/en-sg';
 import { TextFieldElement } from 'react-hook-form-mui';
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { CloudUpload, Save } from '@mui/icons-material';
@@ -56,7 +57,7 @@ function EditEvent() {
                 }}
             >
                 <h1 css={{ marginTop: 0 }}>Edit Event</h1>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
                     <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
                         <Stack spacing={2}>
                             <TextFieldElement name="name" label="Event name" control={control} required />

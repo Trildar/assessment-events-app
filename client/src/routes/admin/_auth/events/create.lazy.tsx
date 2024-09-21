@@ -7,6 +7,7 @@ import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { Add, CloudUpload, Image } from '@mui/icons-material';
 import { type Reducer, useMemo, useReducer } from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/en-sg';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { useMutation } from '@tanstack/react-query';
 import { VisuallyHiddenInput } from '../../../../components/VisuallyHiddenInput';
@@ -50,7 +51,7 @@ function CreateEvent() {
                 }}
             >
                 <h1 css={{ marginTop: 0 }}>Create Event</h1>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
                     <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
                         <Stack spacing={2}>
                             <TextFieldElement name="name" label="Event name" control={control} required />
