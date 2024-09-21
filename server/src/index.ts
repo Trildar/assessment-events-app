@@ -13,6 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use("/store", express.static("store"));
 app.use("/admin", routes_admin);
 app.use("/event", routes_event);
 
