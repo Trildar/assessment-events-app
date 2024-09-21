@@ -1,4 +1,4 @@
-import { Button, Container, Stack, styled } from '@mui/material';
+import { Button, Container, Stack, useTheme } from '@mui/material';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { create, type EventForm } from '../../../../api/event';
@@ -9,20 +9,10 @@ import { type Reducer, useMemo, useReducer } from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { useMutation } from '@tanstack/react-query';
+import { VisuallyHiddenInput } from '../../../../components/VisuallyHiddenInput';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/create')({
     component: CreateEvent,
-});
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
 });
 
 function CreateEvent() {
@@ -47,6 +37,8 @@ function CreateEvent() {
             navigate({ to: '..' });
         },
     });
+    const theme = useTheme();
+
     return (
         <>
             <Container
@@ -63,7 +55,19 @@ function CreateEvent() {
                         <Stack spacing={2}>
                             <TextFieldElement name="name" label="Event name" control={control} required />
                             <DatePickerElement name="start_date" label="Start date" control={control} required />
-                            <DatePickerElement name="end_date" label="End date" control={control} required />
+                            <DatePickerElement
+                                name="end_date"
+                                label="End date"
+                                control={control}
+                                required
+                                rules={{
+                                    validate: {
+                                        startEndDate: (end_date, form_data) =>
+                                            !end_date.isBefore(form_data.start_date) ||
+                                            'End date must be same as or after start date',
+                                    },
+                                }}
+                            />
                             <TextFieldElement name="location" label="Event location" control={control} required />
                             <Container
                                 disableGutters={true}
@@ -98,6 +102,11 @@ function CreateEvent() {
                                     />
                                 </Button>
                             </div>
+                            {eventMutation.isError ? (
+                                <div css={{ color: theme.palette.error.main }}>
+                                    Error creating event: {eventMutation.error.message}
+                                </div>
+                            ) : null}
                             <div>
                                 <Button
                                     variant="contained"
