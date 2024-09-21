@@ -1,4 +1,4 @@
-import { Button, Container, css, Stack, useTheme } from '@mui/material';
+import { Button, Container, css, Stack, Typography, useTheme } from '@mui/material';
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
 import { login, type IAdminLogin } from '../../api/admin';
 import { useForm } from 'react-hook-form';
@@ -38,9 +38,9 @@ function AdminLogin() {
                     padding: '2rem',
                 }}
             >
-                <h1 css={{ marginTop: 0 }}>Admin Login</h1>
                 <form onSubmit={handleSubmit((data) => loginMutation.mutateAsync(data))}>
                     <Stack spacing={2}>
+                        <Typography variant="h3">Admin Login</Typography>
                         <TextFieldElement
                             name="email"
                             label="Email"

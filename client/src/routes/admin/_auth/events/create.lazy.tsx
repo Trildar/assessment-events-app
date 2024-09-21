@@ -1,4 +1,4 @@
-import { Button, Container, Stack, useTheme } from '@mui/material';
+import { Button, Container, Stack, Typography, useTheme } from '@mui/material';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { create, type CreateEventForm } from '../../../../api/event';
@@ -50,10 +50,10 @@ function CreateEvent() {
                     padding: '2rem',
                 }}
             >
-                <h1 css={{ marginTop: 0 }}>Create Event</h1>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
                     <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
                         <Stack spacing={2}>
+                            <Typography variant="h3">Create Event</Typography>
                             <TextFieldElement name="name" label="Event name" control={control} required />
                             <DatePickerElement name="start_date" label="Start date" control={control} required />
                             <DatePickerElement

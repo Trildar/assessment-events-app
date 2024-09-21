@@ -1,4 +1,4 @@
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Add, Delete, Edit, FilterList } from '@mui/icons-material';
 import {
     Button,
     Container,
@@ -15,6 +15,9 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    Toolbar,
+    Tooltip,
+    Typography,
 } from '@mui/material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
@@ -54,10 +57,14 @@ function EventTable() {
     return (
         <>
             <Container>
-                <h1>Events</h1>
                 <Paper>
+                    <Toolbar>
+                        <Typography variant="h4" id="table-title">
+                            Events
+                        </Typography>
+                    </Toolbar>
                     <TableContainer>
-                        <Table>
+                        <Table aria-labelledby="table-title">
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>

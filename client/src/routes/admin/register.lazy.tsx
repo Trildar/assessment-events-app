@@ -1,4 +1,4 @@
-import { Button, Container, css, Stack, useTheme } from '@mui/material';
+import { Button, Container, css, Stack, Typography, useTheme } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
@@ -34,9 +34,9 @@ function AdminLogin() {
                     padding: '2rem',
                 }}
             >
-                <h1 css={{ marginTop: 0 }}>Admin Registration</h1>
                 <form onSubmit={handleSubmit((data) => registerMutation.mutateAsync(data))}>
                     <Stack spacing={2}>
+                        <Typography variant="h3">Admin Registration</Typography>
                         <TextFieldElement
                             name="email"
                             label="Email"

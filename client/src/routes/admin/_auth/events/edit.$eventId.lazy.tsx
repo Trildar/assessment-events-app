@@ -3,7 +3,7 @@ import { edit, EventStatus, getStatusName, type EditEventForm } from '../../../.
 import { useForm, useWatch } from 'react-hook-form';
 import { type Reducer, useMemo, useReducer } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Container, Stack } from '@mui/material';
+import { Button, Container, Stack, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/en-sg';
@@ -63,10 +63,10 @@ function EditEvent() {
                     padding: '2rem',
                 }}
             >
-                <h1 css={{ marginTop: 0 }}>Edit Event</h1>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
                     <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
                         <Stack spacing={2}>
+                            <Typography variant="h3">Edit Event</Typography>
                             <TextFieldElement name="name" label="Event name" control={control} required />
                             <SelectElement
                                 name="status"
