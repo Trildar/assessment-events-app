@@ -81,6 +81,10 @@ router.put("/", upload_handler.single("thumbnail"), async (req, res) => {
         res.status(400).json({ error: "Invalid value given for end_date." });
         return;
     }
+    if (end_date.isBefore(start_date)) {
+        res.status(400).json({ error: "End date must be same as or after start date." })
+        return;
+    }
     const location_raw = req.body.location;
     if (location_raw == null) {
         res.status(400).json({ error: "Required field, location, is missing." });
@@ -194,6 +198,10 @@ router.route("/:id")
         const end_date = dayjs(end_date_raw);
         if (!end_date.isValid()) {
             res.status(400).json({ error: "Invalid value given for end_date." });
+            return;
+        }
+        if (end_date.isBefore(start_date)) {
+            res.status(400).json({ error: "End date must be same as or after start date." })
             return;
         }
         const location_raw = req.body.location;
