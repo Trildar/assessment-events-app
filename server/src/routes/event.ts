@@ -34,6 +34,7 @@ router.put("/", auth_admin);
 router.post("/:id", auth_admin);
 router.delete("/:id", auth_admin);
 
+// TODO: Need to clean up the uploaded file if there's a validation error. Not sure if there's an easy way to do that without a lot of repitition.
 router.put("/", upload_handler.single("thumbnail"), async (req, res) => {
     const name_raw = req.body.name;
     if (name_raw == null) {
@@ -148,6 +149,7 @@ router.route("/:id")
         }
         res.json(event);
     })
+    // TODO: Need to clean up the uploaded file if there's a validation error. Not sure if there's an easy way to do that without a lot of repitition.
     .post(upload_handler.single("thumbnail"), async (req, res) => {
         const event = await Event.findById(req.params.id).exec();
         if (event == null) {
@@ -249,6 +251,7 @@ router.route("/:id")
             res.sendStatus(404);
             return;
         }
+        await fs.rm(event_deleted.thumbnail_path);
         res.sendStatus(204);
     });
 
