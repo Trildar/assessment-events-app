@@ -26,6 +26,16 @@ const eventKy = eventsAppKy.extend((options) => ({
     prefixUrl: `${options.prefixUrl}/event`,
 }));
 
+export async function create(data: EventForm) {
+    const multipartData = new FormData();
+    multipartData.append('name', data.name);
+    multipartData.append('start_date', data.start_date.toISOString());
+    multipartData.append('end_date', data.end_date.toISOString());
+    multipartData.append('location', data.location);
+    multipartData.append('thumbnail', data.thumbnail[0]);
+    return await eventKy.put('', { body: multipartData, credentials: 'include' });
+}
+
 export async function getList(page: number, limit: number): Promise<PaginatedData<IEvent[]>> {
     const data = await eventKy.get('list', { searchParams: { page, limit } }).json<PaginatedData<EventViewModel[]>>();
     return {
@@ -43,16 +53,6 @@ export async function getList(page: number, limit: number): Promise<PaginatedDat
     };
 }
 
-export async function create(data: EventForm) {
-    const multipartData = new FormData();
-    multipartData.append('name', data.name);
-    multipartData.append('start_date', data.start_date.toISOString());
-    multipartData.append('end_date', data.end_date.toISOString());
-    multipartData.append('location', data.location);
-    multipartData.append('thumbnail', data.thumbnail[0]);
-    return await eventKy.put('', { body: multipartData, credentials: 'include' });
-}
-
 export async function get(id: string): Promise<IEvent> {
     const data = await eventKy.get(id).json<EventViewModel>();
     return {
@@ -63,6 +63,18 @@ export async function get(id: string): Promise<IEvent> {
         location: data.location,
         thumbnail_path: data.thumbnail_path,
     };
+}
+
+export async function edit(id: string, data: EventForm) {
+    const multipartData = new FormData();
+    multipartData.append('name', data.name);
+    multipartData.append('start_date', data.start_date.toISOString());
+    multipartData.append('end_date', data.end_date.toISOString());
+    multipartData.append('location', data.location);
+    if (data.thumbnail[0] != null) {
+        multipartData.append('thumbnail', data.thumbnail[0]);
+    }
+    return await eventKy.post(id, { body: multipartData, credentials: 'include' });
 }
 
 export async function deleteEvent(id: string) {

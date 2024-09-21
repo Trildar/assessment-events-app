@@ -19,7 +19,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { deleteEvent } from '../../../../api/event';
+import { deleteEvent, type IEvent } from '../../../../api/event';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/')({
     component: EventTable,
@@ -27,7 +27,7 @@ export const Route = createLazyFileRoute('/admin/_auth/events/')({
 
 function EventTable() {
     const { page, limit } = Route.useSearch();
-    const { eventListQueryOptions } = Route.useRouteContext();
+    const { eventListQueryOptions, eventQueryOptions, queryClient } = Route.useRouteContext();
     const eventsData = useQuery(eventListQueryOptions(page, limit));
     const navigate = Route.useNavigate();
 
@@ -36,9 +36,19 @@ function EventTable() {
         setDeleteOpen(false);
     };
     const [{ deleteEventId, deleteEventName }, setDeleteEvent] = useState({ deleteEventId: '', deleteEventName: '' });
-    const handleDeleteEvent = (deleteEventId: string, deleteEventName: string) => {
+    const handleDeleteEvent = (ev: IEvent) => {
+        const { _id: deleteEventId, name: deleteEventName } = ev;
         setDeleteEvent({ deleteEventId, deleteEventName });
         setDeleteOpen(true);
+    };
+
+    const handleEditEvent = (ev: IEvent) => {
+        queryClient.prefetchQuery({
+            ...eventQueryOptions(ev._id),
+            initialData: ev,
+            initialDataUpdatedAt: eventsData.dataUpdatedAt,
+        });
+        navigate({ to: `edit/${ev._id}`, search: true });
     };
 
     return (
@@ -66,13 +76,17 @@ function EventTable() {
                                               <TableCell>{ev.end_date.format('DD/MM/YYYY')}</TableCell>
                                               <TableCell>{ev.location}</TableCell>
                                               <TableCell>
-                                                  <IconButton color="primary" aria-label="edit">
+                                                  <IconButton
+                                                      color="primary"
+                                                      aria-label="edit"
+                                                      onClick={() => handleEditEvent(ev)}
+                                                  >
                                                       <Edit />
                                                   </IconButton>
                                                   <IconButton
                                                       color="error"
                                                       aria-label="delete"
-                                                      onClick={() => handleDeleteEvent(ev._id, ev.name)}
+                                                      onClick={() => handleDeleteEvent(ev)}
                                                   >
                                                       <Delete />
                                                   </IconButton>
