@@ -205,7 +205,7 @@ function DeleteEvent({
     };
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open}>
             <DialogTitle>Delete event {eventName}?</DialogTitle>
             <DialogActions>
                 <Button color="error" variant="contained" onClick={handleDelete} disabled={deleteMutation.isPending}>
