@@ -54,8 +54,10 @@ export async function create(data: CreateEventForm) {
 }
 
 export async function getList(page: number, limit: number, status?: EventStatus): Promise<PaginatedData<IEvent[]>> {
-    // Need to create an explicitly typed object with optional status field to satisfy type checks
-    const searchParams: { page: number; limit: number; status?: EventStatus } = { page, limit, status };
+    const searchParams: { page: number; limit: number; status?: EventStatus } = { page, limit };
+    if (status != null) {
+        searchParams.status = status;
+    }
     const data = await eventKy.get('list', { searchParams }).json<PaginatedData<EventViewModel[]>>();
     return {
         total_estimate: data.total_estimate,
