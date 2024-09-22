@@ -133,8 +133,31 @@ router.get("/list", async (req, res) => {
             limit = 10;
         }
     }
+    const status_raw = req.query["status"];
+    if (status_raw != null && typeof status_raw !== "string") {
+        res.status(400).json({ error: "Invalid status filter." });
+        return;
+    }
+    let status = null;
+    if (status_raw != null) {
+        status = parseInt(status_raw, 10);
+    }
+    if (status != null && isNaN(status)) {
+        status = null;
+    }
+    if (!(status == null || status === EventStatus.Ongoing || status === EventStatus.Completed)) {
+        res.status(400).json({ error: "Invalid status filter." });
+        return;
+    }
 
-    const events = await Event.find().sort("createdAt").skip(page * limit).limit(limit).exec();
+    let events_query;
+    if (status != null) {
+        events_query = Event.find({ status });
+    } else {
+        events_query = Event.find();
+    }
+    events_query = events_query.sort("createdAt").skip(page * limit).limit(limit);
+    const events = await events_query.exec();
     const event_count_estimate = await Event.estimatedDocumentCount().exec();
 
     res.json({ total_estimate: event_count_estimate, data: events });
@@ -180,7 +203,7 @@ router.route("/:id")
             return;
         }
         const status_num = parseInt(status_raw, 10);
-        if (Number.isNaN(status_num) || !(status_num === EventStatus.Ongoing || status_num === EventStatus.Completed)) {
+        if (isNaN(status_num) || !(status_num === EventStatus.Ongoing || status_num === EventStatus.Completed)) {
             res.status(400).json({ error: "Invalid status." })
             return;
         }

@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { get, getList } from '../../../api/event';
-import { queryOptions } from '@tanstack/react-query';
+import { type EventStatus, get, getList } from '../../../api/event';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
-function eventListQueryOptions(page: number, limit: number) {
+function eventListQueryOptions(page: number, limit: number, status?: EventStatus) {
     return queryOptions({
-        queryKey: ['events', { page, limit }],
-        queryFn: () => getList(page, limit),
+        queryKey: ['events', { page, limit, status }],
+        queryFn: () => getList(page, limit, status),
+        placeholderData: keepPreviousData,
         staleTime: 500,
     });
 }

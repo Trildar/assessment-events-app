@@ -7,6 +7,8 @@ import {
     DialogTitle,
     Fab,
     IconButton,
+    Menu,
+    MenuItem,
     Paper,
     Table,
     TableBody,
@@ -21,17 +23,17 @@ import {
 } from '@mui/material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { deleteEvent, getStatusName, type IEvent } from '../../../../api/event';
+import { useRef, useState } from 'react';
+import { deleteEvent, EventStatus, getStatusName, type IEvent } from '../../../../api/event';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/')({
     component: EventTable,
 });
 
 function EventTable() {
-    const { page, limit } = Route.useSearch();
+    const { page, limit, status: statusFilter } = Route.useSearch();
     const { eventListQueryOptions, eventQueryOptions, queryClient } = Route.useRouteContext();
-    const eventsData = useQuery(eventListQueryOptions(page, limit));
+    const eventsData = useQuery(eventListQueryOptions(page, limit, statusFilter));
     const navigate = Route.useNavigate();
 
     const [deleteOpen, setDeleteOpen] = useState(false);
@@ -54,14 +56,57 @@ function EventTable() {
         navigate({ to: `edit/${ev._id}`, search: true });
     };
 
+    const filterButtonRef = useRef(null);
+    const [filterMenuOpen, setFilterMenuOpen] = useState(false);
+    const setStatusFilter = (status: EventStatus | undefined) => {
+        navigate({ to: '.', search: (prev) => ({ ...prev, status }) });
+    };
+
     return (
         <>
             <Container>
                 <Paper>
                     <Toolbar>
-                        <Typography variant="h4" id="table-title">
+                        <Typography variant="h4" id="table-title" sx={{ flex: 1 }}>
                             Events
                         </Typography>
+                        <Tooltip title="Filter by event status">
+                            <IconButton
+                                ref={filterButtonRef}
+                                aria-haspopup="listbox"
+                                aria-controls="filter-menu"
+                                aria-expanded={filterMenuOpen}
+                                onClick={() => setFilterMenuOpen(true)}
+                            >
+                                <FilterList />
+                            </IconButton>
+                        </Tooltip>
+                        <Menu
+                            id="filter-menu"
+                            anchorEl={filterButtonRef.current}
+                            open={filterMenuOpen}
+                            onClose={() => setFilterMenuOpen(false)}
+                            MenuListProps={{ role: 'listbox' }}
+                        >
+                            <Typography variant="h6" padding="0.5em 1rem">
+                                Filter by event status
+                            </Typography>
+                            <MenuItem selected={statusFilter == null} onClick={() => setStatusFilter(undefined)}>
+                                All
+                            </MenuItem>
+                            <MenuItem
+                                selected={statusFilter === EventStatus.Ongoing}
+                                onClick={() => setStatusFilter(EventStatus.Ongoing)}
+                            >
+                                Ongoing
+                            </MenuItem>
+                            <MenuItem
+                                selected={statusFilter === EventStatus.Completed}
+                                onClick={() => setStatusFilter(EventStatus.Completed)}
+                            >
+                                Completed
+                            </MenuItem>
+                        </Menu>
                     </Toolbar>
                     <TableContainer>
                         <Table aria-labelledby="table-title">

@@ -53,8 +53,10 @@ export async function create(data: CreateEventForm) {
     return await eventKy.put('', { body: multipartData, credentials: 'include' });
 }
 
-export async function getList(page: number, limit: number): Promise<PaginatedData<IEvent[]>> {
-    const data = await eventKy.get('list', { searchParams: { page, limit } }).json<PaginatedData<EventViewModel[]>>();
+export async function getList(page: number, limit: number, status?: EventStatus): Promise<PaginatedData<IEvent[]>> {
+    // Need to create an explicitly typed object with optional status field to satisfy type checks
+    const searchParams: { page: number; limit: number; status?: EventStatus } = { page, limit, status };
+    const data = await eventKy.get('list', { searchParams }).json<PaginatedData<EventViewModel[]>>();
     return {
         total_estimate: data.total_estimate,
         data: data.data.map(
