@@ -110,7 +110,8 @@ router.put("/", upload_handler.single("thumbnail"), async (req, res) => {
         return;
     }
 
-    const event = new Event({ name, status: EventStatus.Ongoing, start_date: start_date.toDate(), end_date: end_date.toDate(), location, thumbnail_path: thumbnail_file.path });
+    const thumbnail_path = thumbnail_file.path.replaceAll('\\', '/');
+    const event = new Event({ name, status: EventStatus.Ongoing, start_date: start_date.toDate(), end_date: end_date.toDate(), location, thumbnail_path });
     await event.save();
 
     res.sendStatus(204);
@@ -273,7 +274,7 @@ router.route("/:id")
             } else {
                 await old_thumbnail_fh.close();
                 await fs.rm(event.thumbnail_path);
-                event.thumbnail_path = thumbnail_file.path;
+                event.thumbnail_path = thumbnail_file.path.replaceAll('\\', '/');
             }
         }
         await event.save();
