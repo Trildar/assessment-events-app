@@ -1,9 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { lazy } from 'react';
+import type { EventListQueryOptionsType } from '../main';
 
 interface RootRouterContext {
     queryClient: QueryClient;
+    eventListQueryOptions: EventListQueryOptionsType;
 }
 
 const TanStackRouterDevtools = import.meta.env.PROD

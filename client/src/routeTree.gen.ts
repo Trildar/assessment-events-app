@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as AdminAuthImport } from './routes/admin/_auth'
 import { Route as AdminAuthEventsImport } from './routes/admin/_auth/events'
@@ -22,7 +23,6 @@ import { Route as AdminAuthEventsEditEventIdImport } from './routes/admin/_auth/
 // Create Virtual Routes
 
 const AdminImport = createFileRoute('/admin')()
-const IndexLazyImport = createFileRoute('/')()
 const AdminRegisterLazyImport = createFileRoute('/admin/register')()
 const AdminAuthEventsCreateLazyImport = createFileRoute(
   '/admin/_auth/events/create',
@@ -35,7 +35,7 @@ const AdminRoute = AdminImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
@@ -93,7 +93,7 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
+      preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     '/admin': {
@@ -200,7 +200,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/admin': typeof AdminAuthRouteWithChildren
   '/admin/register': typeof AdminRegisterLazyRoute
   '/admin/': typeof AdminIndexRoute
@@ -211,7 +211,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/register': typeof AdminRegisterLazyRoute
   '/admin/events/create': typeof AdminAuthEventsCreateLazyRoute
@@ -221,7 +221,7 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/_auth': typeof AdminAuthRouteWithChildren
   '/admin/register': typeof AdminRegisterLazyRoute
@@ -266,12 +266,12 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
+  IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
+  IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
 }
 
@@ -292,7 +292,7 @@ export const routeTree = rootRoute
       ]
     },
     "/": {
-      "filePath": "index.lazy.tsx"
+      "filePath": "index.tsx"
     },
     "/admin": {
       "filePath": "admin",

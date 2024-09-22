@@ -1,15 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { type EventStatus, get, getList } from '../../../api/event';
-import { keepPreviousData, queryOptions } from '@tanstack/react-query';
-
-function eventListQueryOptions(page: number, limit: number, status?: EventStatus) {
-    return queryOptions({
-        queryKey: ['events', { page, limit, status }],
-        queryFn: () => getList(page, limit, status),
-        placeholderData: keepPreviousData,
-        staleTime: 500,
-    });
-}
+import { get } from '../../../api/event';
+import { queryOptions } from '@tanstack/react-query';
 
 function eventQueryOptions(id: string) {
     return queryOptions({
@@ -22,7 +13,6 @@ function eventQueryOptions(id: string) {
 export const Route = createFileRoute('/admin/_auth/events')({
     beforeLoad: () => {
         return {
-            eventListQueryOptions,
             eventQueryOptions,
         };
     },

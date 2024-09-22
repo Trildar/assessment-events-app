@@ -9,10 +9,21 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { createTheme, ThemeProvider } from '@mui/material';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { keepPreviousData, QueryClient, QueryClientProvider, queryOptions } from '@tanstack/react-query';
+import { type EventStatus, getList } from './api/event';
+
+function eventListQueryOptions(page: number, limit: number, status?: EventStatus) {
+    return queryOptions({
+        queryKey: ['events', { page, limit, status }],
+        queryFn: () => getList(page, limit, status),
+        placeholderData: keepPreviousData,
+        staleTime: 500,
+    });
+}
+export type EventListQueryOptionsType = typeof eventListQueryOptions;
 
 const queryClient = new QueryClient();
-const router = createRouter({ routeTree, context: { queryClient } });
+const router = createRouter({ routeTree, context: { queryClient, eventListQueryOptions } });
 declare module '@tanstack/react-router' {
     interface Register {
         router: typeof router;
