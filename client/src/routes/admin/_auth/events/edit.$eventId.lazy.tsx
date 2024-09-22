@@ -3,7 +3,7 @@ import { edit, EventStatus, getStatusName, type EditEventForm } from '../../../.
 import { useForm, useWatch } from 'react-hook-form';
 import { type Reducer, useMemo, useReducer } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Container, Stack, Typography } from '@mui/material';
+import { Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/en-sg';
@@ -55,86 +55,86 @@ function EditEvent() {
 
     return (
         <>
-            <Container
-                maxWidth="md"
-                sx={{
-                    backgroundColor: 'background.default',
-                    borderRadius: 4,
-                    padding: '2rem',
-                }}
-            >
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
-                    <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
-                        <Stack spacing={2}>
-                            <Typography variant="h3">Edit Event</Typography>
-                            <TextFieldElement name="name" label="Event name" control={control} required />
-                            <SelectElement
-                                name="status"
-                                label="Status"
-                                options={eventStatusOptions}
-                                control={control}
-                                required
-                            />
-                            <DatePickerElement name="start_date" label="Start date" control={control} required />
-                            <DatePickerElement
-                                name="end_date"
-                                label="End date"
-                                control={control}
-                                required
-                                rules={{
-                                    validate: {
-                                        startEndDate: (end_date, form_data) =>
-                                            !end_date.isBefore(form_data.start_date) ||
-                                            'End date must be same as or after start date',
-                                    },
-                                }}
-                            />
-                            <TextFieldElement name="location" label="Event location" control={control} required />
-                            <Container
-                                disableGutters={true}
-                                sx={{
-                                    width: 'fit-content',
-                                    height: '200px',
-                                    backgroundColor: 'grey.200',
-                                    borderRadius: 4,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <img
-                                    src={
-                                        thumbnailUrlObject ??
-                                        (eventData.data?.thumbnail_path
-                                            ? `${import.meta.env.VITE_API_BASE_URL}/${eventData.data?.thumbnail_path}`
-                                            : '')
-                                    }
-                                    alt="Event thumbnail"
-                                    css={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            <Container maxWidth="md">
+                <Paper sx={{ padding: '2rem' }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
+                        <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
+                            <Stack spacing={2}>
+                                <Typography variant="h3">Edit Event</Typography>
+                                <TextFieldElement name="name" label="Event name" control={control} required />
+                                <SelectElement
+                                    name="status"
+                                    label="Status"
+                                    options={eventStatusOptions}
+                                    control={control}
+                                    required
                                 />
-                            </Container>
-                            <div>
-                                <Button component="label" variant="outlined" tabIndex={-1} startIcon={<CloudUpload />}>
-                                    Choose thumbnail
-                                    <VisuallyHiddenInput type="file" accept="image/*" {...register('thumbnail')} />
-                                </Button>
-                            </div>
-                            <Stack spacing={2} direction="row">
-                                <Button
-                                    variant="contained"
-                                    type="submit"
-                                    disabled={eventMutation.isPending}
-                                    startIcon={<Save />}
+                                <DatePickerElement name="start_date" label="Start date" control={control} required />
+                                <DatePickerElement
+                                    name="end_date"
+                                    label="End date"
+                                    control={control}
+                                    required
+                                    rules={{
+                                        validate: {
+                                            startEndDate: (end_date, form_data) =>
+                                                !end_date.isBefore(form_data.start_date) ||
+                                                'End date must be same as or after start date',
+                                        },
+                                    }}
+                                />
+                                <TextFieldElement name="location" label="Event location" control={control} required />
+                                <Container
+                                    disableGutters={true}
+                                    sx={{
+                                        width: 'fit-content',
+                                        height: '200px',
+                                        backgroundColor: 'grey.200',
+                                        borderRadius: 4,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
                                 >
-                                    Save changes
-                                </Button>
-                                <Button variant="outlined" onClick={() => history.back()}>
-                                    Cancel
-                                </Button>
+                                    <img
+                                        src={
+                                            thumbnailUrlObject ??
+                                            (eventData.data?.thumbnail_path
+                                                ? `${import.meta.env.VITE_API_BASE_URL}/${eventData.data?.thumbnail_path}`
+                                                : '')
+                                        }
+                                        alt="Event thumbnail"
+                                        css={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                    />
+                                </Container>
+                                <div>
+                                    <Button
+                                        component="label"
+                                        variant="outlined"
+                                        tabIndex={-1}
+                                        startIcon={<CloudUpload />}
+                                    >
+                                        Choose thumbnail
+                                        <VisuallyHiddenInput type="file" accept="image/*" {...register('thumbnail')} />
+                                    </Button>
+                                </div>
+                                <Stack spacing={2} direction="row">
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        disabled={eventMutation.isPending}
+                                        startIcon={<Save />}
+                                    >
+                                        Save changes
+                                    </Button>
+                                    <Button variant="outlined" onClick={() => history.back()}>
+                                        Cancel
+                                    </Button>
+                                </Stack>
                             </Stack>
-                        </Stack>
-                    </form>
-                </LocalizationProvider>
+                        </form>
+                    </LocalizationProvider>
+                </Paper>
             </Container>
         </>
     );

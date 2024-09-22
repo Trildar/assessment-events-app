@@ -1,4 +1,4 @@
-import { Button, Container, css, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Container, css, Paper, Stack, Typography, useTheme } from '@mui/material';
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
 import { login, type IAdminLogin } from '../../api/admin';
 import { useForm } from 'react-hook-form';
@@ -32,62 +32,57 @@ function AdminLogin() {
 
     return (
         <>
-            <Container
-                maxWidth="md"
-                sx={{
-                    backgroundColor: 'background.default',
-                    borderRadius: 4,
-                    padding: '2rem',
-                }}
-            >
-                <form onSubmit={handleSubmit((data) => loginMutation.mutateAsync(data))}>
-                    <Stack spacing={2}>
-                        <Typography variant="h3">Admin Login</Typography>
-                        <TextFieldElement
-                            name="email"
-                            label="Email"
-                            control={control}
-                            type="email"
-                            required
-                            css={inputMaxWidth}
-                            rules={{
-                                maxLength: {
-                                    value: 255,
-                                    message: 'Email cannot be longer than 255 characters',
-                                },
-                            }}
-                        />
-                        <PasswordElement
-                            name="password"
-                            label="Password"
-                            control={control}
-                            required
-                            rules={{
-                                maxLength: {
-                                    value: 255,
-                                    message: 'Password cannot be longer than 255 characters',
-                                },
-                            }}
-                            css={inputMaxWidth}
-                        />
-                        {loginMutation.isError ? (
-                            <div css={{ color: theme.palette.error.main }}>
-                                Login error: {loginMutation.error.message}
-                            </div>
-                        ) : null}
-                        {searchParams.bounced ? (
-                            <div css={{ color: theme.palette.error.main }}>Login required to access page</div>
-                        ) : null}
-                        <Stack direction="row" spacing={2}>
-                            <Button variant="contained" type="submit" disabled={loginMutation.isPending}>
-                                Login
-                            </Button>
-                            <Button variant="outlined" color="secondary" href="/admin/register">
-                                Register
-                            </Button>
+            <Container maxWidth="md">
+                <Paper sx={{ padding: '2rem' }}>
+                    <form onSubmit={handleSubmit((data) => loginMutation.mutateAsync(data))}>
+                        <Stack spacing={2}>
+                            <Typography variant="h3">Admin Login</Typography>
+                            <TextFieldElement
+                                name="email"
+                                label="Email"
+                                control={control}
+                                type="email"
+                                required
+                                css={inputMaxWidth}
+                                rules={{
+                                    maxLength: {
+                                        value: 255,
+                                        message: 'Email cannot be longer than 255 characters',
+                                    },
+                                }}
+                            />
+                            <PasswordElement
+                                name="password"
+                                label="Password"
+                                control={control}
+                                required
+                                rules={{
+                                    maxLength: {
+                                        value: 255,
+                                        message: 'Password cannot be longer than 255 characters',
+                                    },
+                                }}
+                                css={inputMaxWidth}
+                            />
+                            {loginMutation.isError ? (
+                                <div css={{ color: theme.palette.error.main }}>
+                                    Login error: {loginMutation.error.message}
+                                </div>
+                            ) : null}
+                            {searchParams.bounced ? (
+                                <div css={{ color: theme.palette.error.main }}>Login required to access page</div>
+                            ) : null}
+                            <Stack direction="row" spacing={2}>
+                                <Button variant="contained" type="submit" disabled={loginMutation.isPending}>
+                                    Login
+                                </Button>
+                                <Button variant="outlined" color="secondary" href="/admin/register">
+                                    Register
+                                </Button>
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </form>
+                    </form>
+                </Paper>
             </Container>
         </>
     );

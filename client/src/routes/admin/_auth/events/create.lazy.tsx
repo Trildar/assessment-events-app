@@ -1,4 +1,4 @@
-import { Button, Container, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Container, Paper, Stack, Typography, useTheme } from '@mui/material';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { create, type CreateEventForm } from '../../../../api/event';
@@ -42,85 +42,85 @@ function CreateEvent() {
 
     return (
         <>
-            <Container
-                maxWidth="md"
-                sx={{
-                    backgroundColor: 'background.default',
-                    borderRadius: 4,
-                    padding: '2rem',
-                }}
-            >
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
-                    <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
-                        <Stack spacing={2}>
-                            <Typography variant="h3">Create Event</Typography>
-                            <TextFieldElement name="name" label="Event name" control={control} required />
-                            <DatePickerElement name="start_date" label="Start date" control={control} required />
-                            <DatePickerElement
-                                name="end_date"
-                                label="End date"
-                                control={control}
-                                required
-                                rules={{
-                                    validate: {
-                                        startEndDate: (end_date, form_data) =>
-                                            !end_date.isBefore(form_data.start_date) ||
-                                            'End date must be same as or after start date',
-                                    },
-                                }}
-                            />
-                            <TextFieldElement name="location" label="Event location" control={control} required />
-                            <Container
-                                disableGutters={true}
-                                sx={{
-                                    width: 'fit-content',
-                                    height: '200px',
-                                    backgroundColor: 'grey.200',
-                                    borderRadius: 4,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                {thumbnailUrlObject ? (
-                                    <img
-                                        src={thumbnailUrlObject}
-                                        alt="Event thumbnail"
-                                        css={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                    />
-                                ) : (
-                                    <Image css={{ width: '400px' }} />
-                                )}
-                            </Container>
-                            <div>
-                                <Button component="label" variant="outlined" tabIndex={-1} startIcon={<CloudUpload />}>
-                                    Choose thumbnail
-                                    <VisuallyHiddenInput
-                                        type="file"
-                                        accept="image/*"
-                                        required
-                                        {...register('thumbnail', { required: true })}
-                                    />
-                                </Button>
-                            </div>
-                            {eventMutation.isError ? (
-                                <div css={{ color: theme.palette.error.main }}>
-                                    Error creating event: {eventMutation.error.message}
-                                </div>
-                            ) : null}
-                            <div>
-                                <Button
-                                    variant="contained"
-                                    type="submit"
-                                    disabled={eventMutation.isPending}
-                                    startIcon={<Add />}
+            <Container maxWidth="md">
+                <Paper sx={{ padding: '2rem' }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-sg">
+                        <form onSubmit={handleSubmit((data) => eventMutation.mutateAsync(data))}>
+                            <Stack spacing={2}>
+                                <Typography variant="h3">Create Event</Typography>
+                                <TextFieldElement name="name" label="Event name" control={control} required />
+                                <DatePickerElement name="start_date" label="Start date" control={control} required />
+                                <DatePickerElement
+                                    name="end_date"
+                                    label="End date"
+                                    control={control}
+                                    required
+                                    rules={{
+                                        validate: {
+                                            startEndDate: (end_date, form_data) =>
+                                                !end_date.isBefore(form_data.start_date) ||
+                                                'End date must be same as or after start date',
+                                        },
+                                    }}
+                                />
+                                <TextFieldElement name="location" label="Event location" control={control} required />
+                                <Container
+                                    disableGutters={true}
+                                    sx={{
+                                        width: 'fit-content',
+                                        height: '200px',
+                                        backgroundColor: 'grey.200',
+                                        borderRadius: 4,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
                                 >
-                                    Create event
-                                </Button>
-                            </div>
-                        </Stack>
-                    </form>
-                </LocalizationProvider>
+                                    {thumbnailUrlObject ? (
+                                        <img
+                                            src={thumbnailUrlObject}
+                                            alt="Event thumbnail"
+                                            css={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                        />
+                                    ) : (
+                                        <Image css={{ width: '400px' }} />
+                                    )}
+                                </Container>
+                                <div>
+                                    <Button
+                                        component="label"
+                                        variant="outlined"
+                                        tabIndex={-1}
+                                        startIcon={<CloudUpload />}
+                                    >
+                                        Choose thumbnail
+                                        <VisuallyHiddenInput
+                                            type="file"
+                                            accept="image/*"
+                                            required
+                                            {...register('thumbnail', { required: true })}
+                                        />
+                                    </Button>
+                                </div>
+                                {eventMutation.isError ? (
+                                    <div css={{ color: theme.palette.error.main }}>
+                                        Error creating event: {eventMutation.error.message}
+                                    </div>
+                                ) : null}
+                                <div>
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        disabled={eventMutation.isPending}
+                                        startIcon={<Add />}
+                                    >
+                                        Create event
+                                    </Button>
+                                </div>
+                            </Stack>
+                        </form>
+                    </LocalizationProvider>
+                </Paper>
             </Container>
         </>
     );
