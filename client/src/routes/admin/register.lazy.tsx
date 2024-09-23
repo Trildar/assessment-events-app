@@ -1,4 +1,4 @@
-import { Button, Container, css, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Container, css, Paper, Stack, Typography } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
@@ -18,7 +18,6 @@ const inputMaxWidth = css({ maxWidth: '500px' });
 
 function AdminLogin() {
     const { control, handleSubmit } = useForm<RegisterForm>();
-    const theme = useTheme();
     const navigate = Route.useNavigate();
     const registerMutation = useMutation({
         mutationFn: register,
@@ -72,9 +71,9 @@ function AdminLogin() {
                                 css={inputMaxWidth}
                             />
                             {registerMutation.isError ? (
-                                <div css={{ color: theme.palette.error.main }}>
+                                <Typography color="error">
                                     Registration error: {registerMutation.error.message}
-                                </div>
+                                </Typography>
                             ) : null}
                             <div>
                                 <Button variant="contained" type="submit" disabled={registerMutation.isPending}>

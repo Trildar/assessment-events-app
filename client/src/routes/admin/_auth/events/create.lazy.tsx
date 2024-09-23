@@ -1,4 +1,4 @@
-import { Button, Container, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useForm, useWatch } from 'react-hook-form';
 import { create, type CreateEventForm } from '../../../../api/event';
@@ -38,7 +38,6 @@ function CreateEvent() {
             navigate({ to: '..' });
         },
     });
-    const theme = useTheme();
 
     return (
         <>
@@ -103,9 +102,9 @@ function CreateEvent() {
                                     </Button>
                                 </div>
                                 {eventMutation.isError ? (
-                                    <div css={{ color: theme.palette.error.main }}>
+                                    <Typography color="error">
                                         Error creating event: {eventMutation.error.message}
-                                    </div>
+                                    </Typography>
                                 ) : null}
                                 <div>
                                     <Button

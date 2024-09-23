@@ -1,4 +1,4 @@
-import { Button, Container, css, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { Button, Container, css, Paper, Stack, Typography } from '@mui/material';
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
 import { login, type IAdminLogin } from '../../api/admin';
 import { useForm } from 'react-hook-form';
@@ -14,7 +14,6 @@ const inputMaxWidth = css({ maxWidth: '500px' });
 
 function AdminLogin() {
     const { control, handleSubmit } = useForm<LoginForm>();
-    const theme = useTheme();
     const router = useRouter();
     const searchParams = Route.useSearch();
     const { queryClient } = Route.useRouteContext();
@@ -65,12 +64,10 @@ function AdminLogin() {
                                 css={inputMaxWidth}
                             />
                             {loginMutation.isError ? (
-                                <div css={{ color: theme.palette.error.main }}>
-                                    Login error: {loginMutation.error.message}
-                                </div>
+                                <Typography color="error">Login error: {loginMutation.error.message}</Typography>
                             ) : null}
                             {searchParams.bounced ? (
-                                <div css={{ color: theme.palette.error.main }}>Login required to access page</div>
+                                <Typography color="error">Login required to access page</Typography>
                             ) : null}
                             <Stack direction="row" spacing={2}>
                                 <Button variant="contained" type="submit" disabled={loginMutation.isPending}>
