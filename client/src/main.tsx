@@ -1,6 +1,5 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
 import { routeTree } from './routeTree.gen';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 // Fonts for Material UI
@@ -29,7 +28,7 @@ declare module '@tanstack/react-router' {
         router: typeof router;
     }
 }
-const theme = createTheme({ cssVariables: true });
+const theme = createTheme();
 
 // biome-ignore lint/style/noNonNullAssertion: Element with id root always exists
 createRoot(document.getElementById('root')!).render(
