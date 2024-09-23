@@ -1,18 +1,11 @@
 import express from "express";
-import { randomBytes, scrypt, ScryptOptions } from "node:crypto";
-import { promisify } from "node:util";
 import { Buffer } from "node:buffer";
 import { User } from "../db/schemas.js";
 import { MongoServerError } from "mongodb";
 import { JWTPayload, jwtVerify, SignJWT } from "jose";
+import { hash_salt_password, verify_password, type AuthTokenData } from "../middleware/auth.js";
 
 const router = express.Router();
-const SALT_LENGTH = 16;
-// Cost of 2**17 as per OWASP recommendation
-const SCRYPT_OPTIONS: ScryptOptions = {
-    cost: 1 << 17,
-    maxmem: 128 * (2 + 1 << 17) * 8 // 128 * (2 + cost) * blockSize
-};
 const jwt_sign_key_hex = process.env.JWT_KEY;
 if (!jwt_sign_key_hex) {
     console.log("[server]: JWT_KEY missing");
@@ -59,19 +52,9 @@ router.post("/register", async (req, res) => {
         return;
     }
 
-    const salt = await promisify(randomBytes)(SALT_LENGTH);
-    // promisify has issues with type checking for scrypt due to using the options argument
-    const password_hashed = await new Promise<Buffer>((resolve, reject) => {
-        scrypt(password, salt, 64, SCRYPT_OPTIONS, (err, derivedKey) => {
-            if (err != null) {
-                reject(err);
-            }
-            resolve(derivedKey);
-        });
-    });
     const new_user = new User({
         email,
-        password: Buffer.concat([salt, password_hashed])
+        password: hash_salt_password(password)
     });
 
     try {
@@ -128,25 +111,15 @@ router.post("/login", async (req, res) => {
         res.status(400).json({ error: message_login_failed });
         return;
     }
-    const salt = user.password.subarray(0, SALT_LENGTH);
-    const password_stored = user.password.subarray(SALT_LENGTH);
-    // promisify has issues with type checking for scrypt due to using the options argument
-    const password_hashed = await new Promise<Buffer>((resolve, reject) => {
-        scrypt(password, salt, 64, SCRYPT_OPTIONS, (err, derivedKey) => {
-            if (err != null) {
-                reject(err);
-            }
-            resolve(derivedKey);
-        });
-    });
-    if (Buffer.compare(password_hashed, password_stored) !== 0) {
+    if (!await verify_password(password, user.password)) {
         res.status(400).json({ error: message_login_failed });
         return;
     }
 
     // 24 hours from now
     const token_expiry = Date.now() + 24 * 3600000;
-    const token = await new SignJWT({ roles: ["admin"] })
+    const token_payload: JWTPayload & AuthTokenData = { user_id: user._id.toString(), roles: ["admin"] };
+    const token = await new SignJWT(token_payload)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime(token_expiry)
