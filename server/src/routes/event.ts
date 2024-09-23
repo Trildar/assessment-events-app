@@ -2,8 +2,9 @@ import express from "express";
 import multer from "multer";
 import fs from "node:fs/promises";
 import dayjs from "dayjs";
-import { auth_admin } from "../middleware/auth.js";
-import { Event, EventStatus } from "../db/schemas.js";
+import type { Request } from "express";
+import { auth_admin, verify_password } from "../middleware/auth.js";
+import { Event, EventStatus, User } from "../db/schemas.js";
 import { customAlphabet } from "nanoid";
 import { createHash } from "node:crypto";
 
@@ -281,7 +282,36 @@ router.route("/:id")
 
         res.sendStatus(204);
     })
-    .delete(async (req, res) => {
+    .delete(async (req: Request, res) => {
+        const user_id = req.auth_token_data?.user_id;
+        if (user_id == null) {
+            res.status(400).json({ error: "Auth token missing user_id." });
+            return;
+        }
+        const user = await User.findById(user_id).exec();
+        if (user == null) {
+            res.status(500).json({ error: "Could not find user associated with auth token." });
+            return;
+        }
+        const password_raw = req.body.password;
+        if (password_raw == null) {
+            res.status(400).json({ error: "Required field, password, is missing." });
+            return;
+        }
+        if (typeof password_raw !== "string") {
+            res.status(400).json({ error: "Invalid type for password. Must be a string." });
+            return;
+        }
+        const password = password_raw.normalize();
+        if (password.length > 255) {
+            res.status(400).json({ error: "Password too long. Maximum length is 255 characters." });
+            return;
+        }
+        if (!await verify_password(password, user.password)) {
+            res.status(400).json({ error: "Password is incorrect." })
+            return;
+        }
+
         const event_deleted = await Event.findByIdAndDelete(req.params.id).exec();
         if (event_deleted == null) {
             res.sendStatus(404);

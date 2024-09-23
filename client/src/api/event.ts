@@ -101,6 +101,6 @@ export async function edit(id: string, data: EditEventForm) {
     return await eventKy.post(id, { body: multipartData, credentials: 'include' });
 }
 
-export async function deleteEvent(id: string) {
-    return await eventKy.delete(id, { credentials: 'include' });
+export async function deleteEvent(id: string, password: string) {
+    return await eventKy.delete(id, { json: { password }, credentials: 'include' });
 }

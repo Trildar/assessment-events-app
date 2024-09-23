@@ -4,12 +4,15 @@ import {
     Container,
     Dialog,
     DialogActions,
+    DialogContent,
+    DialogContentText,
     DialogTitle,
     Fab,
     IconButton,
     Menu,
     MenuItem,
     Paper,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -25,6 +28,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createLazyFileRoute } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { deleteEvent, EventStatus, getStatusName, type IEvent } from '../../../../api/event';
+import { PasswordElement, useForm } from 'react-hook-form-mui';
 
 export const Route = createLazyFileRoute('/admin/_auth/events/')({
     component: EventTable,
@@ -179,7 +183,7 @@ function EventTable() {
             </Fab>
             <DeleteEvent
                 open={deleteOpen}
-                handleClose={deleteHandleClose}
+                onClose={deleteHandleClose}
                 eventId={deleteEventId}
                 eventName={deleteEventName}
             />
@@ -189,26 +193,59 @@ function EventTable() {
 
 function DeleteEvent({
     open,
-    handleClose,
+    onClose,
     eventId,
     eventName,
-}: { open: boolean; handleClose: () => void; eventId: string; eventName: string }) {
+}: { open: boolean; onClose: () => void; eventId: string; eventName: string }) {
+    const { control, handleSubmit, reset } = useForm<{ password: string }>();
+    const handleClose = () => {
+        reset();
+        onClose();
+    };
+
     const { queryClient } = Route.useRouteContext();
     const deleteMutation = useMutation({
-        mutationFn: deleteEvent,
+        mutationFn: ({ id, password }: { id: string; password: string }) => deleteEvent(id, password),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['events'] });
         },
     });
-    const handleDelete = () => {
-        return deleteMutation.mutateAsync(eventId, { onSuccess: () => handleClose() });
-    };
+    const handleDelete = handleSubmit((data) =>
+        deleteMutation.mutateAsync({ id: eventId, password: data.password }, { onSuccess: () => handleClose() }),
+    );
 
     return (
         <Dialog open={open}>
-            <DialogTitle>Delete event {eventName}?</DialogTitle>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+                <Stack spacing={2}>
+                    <DialogContentText>
+                        Enter your password to confirm deletion of event "{eventName}"
+                    </DialogContentText>
+                    <form>
+                        <PasswordElement
+                            name="password"
+                            label="Password"
+                            control={control}
+                            required
+                            rules={{
+                                maxLength: { value: 255, message: 'Password cannot be longer than 255 characters' },
+                            }}
+                        />
+                    </form>
+                    {deleteMutation.isError ? (
+                        <Typography color="error">{deleteMutation.error.message}</Typography>
+                    ) : null}
+                </Stack>
+            </DialogContent>
             <DialogActions>
-                <Button color="error" variant="contained" onClick={handleDelete} disabled={deleteMutation.isPending}>
+                <Button
+                    color="error"
+                    variant="contained"
+                    onClick={handleDelete}
+                    startIcon={<Delete />}
+                    disabled={deleteMutation.isPending}
+                >
                     Delete
                 </Button>
                 <Button color="primary" variant="outlined" onClick={handleClose}>
